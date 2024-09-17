@@ -3,6 +3,8 @@ import { TypographyH2 } from "@/components/ui/typography";
 import { createServerSupabaseClient } from "@/lib/server-utils";
 import { redirect } from "next/navigation";
 import AddSpeciesDialog from "./add-species-dialog";
+import DeleteSpeciesDialog from "./delete-species-dialog";
+import EditSpeciesDialog from "./edit-species.dialog";
 import SpeciesListClient from "./species-list-client";
 
 export default async function SpeciesList() {
@@ -20,11 +22,19 @@ export default async function SpeciesList() {
 
   const { data: species } = await supabase.from("species").select("*").order("id", { ascending: false });
 
+  // Obtain species created by the currently signed-in user
+  const { data: userSpecies } = await supabase
+    .from("species")
+    .select("*")
+    .eq("author", sessionId)
+    .order("id", { ascending: false });
   return (
     <>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <TypographyH2>Species List</TypographyH2>
         <AddSpeciesDialog userId={sessionId} />
+        <EditSpeciesDialog userId={sessionId} userSpecies={userSpecies ?? []} />
+        <DeleteSpeciesDialog userSpecies={userSpecies ?? []} />
       </div>
       <Separator className="my-4" />
 
