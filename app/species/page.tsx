@@ -3,10 +3,9 @@ import { TypographyH2 } from "@/components/ui/typography";
 import { createServerSupabaseClient } from "@/lib/server-utils";
 import { redirect } from "next/navigation";
 import AddSpeciesDialog from "./add-species-dialog";
-import SpeciesCard from "./species-card";
+import SpeciesListClient from "./species-list-client";
 
 export default async function SpeciesList() {
-  // Create supabase server component client and obtain user session from stored cookie
   const supabase = createServerSupabaseClient();
   const {
     data: { session },
@@ -17,7 +16,6 @@ export default async function SpeciesList() {
     redirect("/");
   }
 
-  // Obtain the ID of the currently signed-in user
   const sessionId = session.user.id;
 
   const { data: species } = await supabase.from("species").select("*").order("id", { ascending: false });
@@ -29,9 +27,8 @@ export default async function SpeciesList() {
         <AddSpeciesDialog userId={sessionId} />
       </div>
       <Separator className="my-4" />
-      <div className="flex flex-wrap justify-center">
-        {species?.map((species) => <SpeciesCard key={species.id} species={species} />)}
-      </div>
+
+      <SpeciesListClient species={species ?? []} />
     </>
   );
 }
